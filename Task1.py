@@ -49,5 +49,23 @@ pos = nx.random_layout(G)
 nx.draw(G, pos, with_labels=1)  # Plotting the actual Graph (Not helpful so ignore)
 # plt.show() # You can run this but it won't be that helpful
 
+# Converting the created graph to a dictionary because easier to apply dijkstra algorithm
+temp_dict = nx.to_dict_of_dicts(G)
+
+# The created dictionary above is gonna be messy. This is why I have further refined it below to a more readable second
+# dictionary
+graph_dict = {}
+
+for i in vertices:
+    edge_keys = temp_dict[i].keys()
+    graph_dict[i] = dict()
+    for j in edge_keys:
+        graph_dict[i][j] = temp_dict[i][j][0]["weight"]
+
+# This new dictionary should be much clearer to understand. Consists of a dictionary where each key is a station and
+# the value for each key is a nested dictionary which holds the neighbours of that station along with time taken
+# for each
+print(graph_dict["Green Park"]) # Example
+
 # Example for shortest path algorithm. Not going to use this for the final code. Need to implement Dijkstra's algorithm
 print(single_source_dijkstra(G, source="Acton Town", target="Green Park", weight='weight'))
