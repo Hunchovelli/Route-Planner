@@ -2,8 +2,7 @@
 
 import openpyxl
 import networkx as nx
-from matplotlib import pyplot as plt
-from networkx import single_source_dijkstra
+from networkx import single_source_dijkstra, NodeNotFound, NetworkXNoPath
 
 wrkbk = openpyxl.load_workbook("Stations.xlsx")  # Creating a link to the excel file with the London Underground Data
 ws = wrkbk['Sheet1']
@@ -22,13 +21,15 @@ station_dict = {}
 edges = []
 
 # Adding the stations to dictionary along with all the lines that operate at the stations
-for a in rows1:
-    if a[1] in station_dict.keys():
-        station_dict[a[1]].append(a[0])
-        station_dict[a[1]].sort()
+for row in rows1:
+    station = row[1].rstrip()  # Using rstrip() to get rid of unnecessary whitespace at end of string if present
+    if station in station_dict.keys():
+        station_dict[station].append(row[0])
+        station_dict[station].sort()
     else:
-        station_dict[a[1]] = [a[0]]
-        station_dict[a[1]].sort()
+        station_dict[station] = [row[0]]
+        station_dict[station].sort()
+    
 
 # Get list of vertices by obtaining all the keys from the dictionary
 vertices = station_dict.keys()
@@ -36,11 +37,14 @@ vertices = station_dict.keys()
 # print(vertices)  # Run this for a better idea
 
 # Append all the edges from the excel file
-for b in rows2:
-    edges.append(b)
+for row in rows2:
+    start = row[0].rstrip()
+    end = row[1].strip()
+    edges.append((start, end, row[2]))
 
 # print(edges)   # Run this for a better idea
 
+##########################################################################################################
 # THESE 2 FOR LOOPS ARE NOT PART OF TASK 1
 # THEY CAN BE USED AS REFERENCE FOR TASK 2
 # Get all the edges linked to one station
@@ -52,6 +56,7 @@ for b in rows2:
 # for j in edges:
 #     if j == ('Gloucester Road', 'South Kensington', 3):
 #         edges.remove(j)
+###########################################################################################################
 
 # CONTINUATION OF TASK 1
 
@@ -60,7 +65,7 @@ G = nx.MultiGraph()
 G.add_nodes_from(vertices)
 G.add_weighted_edges_from(edges)
 
-# Example for shortest path algorithm. Not going to use this for the final code. Need to implement Dijkstra's algorithm
+# Test Code
 # print(single_source_dijkstra(G, source="Acton Town", target="Green Park", weight='weight'))
 
 
@@ -68,40 +73,60 @@ G.add_weighted_edges_from(edges)
 def get_route():
 
     # Count the number of times the user will need to change lines
+    # Add 5 min to the total time for each line change
     line_change_counter = 0
 
     print("Enter the departure stations: ")
     departure = input()
     print("Enter the destination stations: ")
     destination = input()
-    route = single_source_dijkstra(G, source=departure, target=destination, weight='weight')
-    print("The following route has been generated:")
-    print()
+    
+    # Handle exceptions occurred from bad input
+    try:
+        route = single_source_dijkstra(G, source=departure, target=destination, weight='weight')
 
-    # Print route, station by station along with the line they will use to get there
-    for i in route[1]:
+        # Print route, station by station along with the line they will use to get there
+        for i in route[1]:
 
-        if route[1].index(i) == 0:
-            current_line = i
-            print(i)
-            continue
+            # First station will not have an associated line because we assume that user is at the station
+            if route[1].index(i) == 0:
+                prev_station = i  # Holds the station travelled from
+                prev_line = station_dict[i][0]  # Holds the line used to travel to the previous station
+                print(i)
+                continue
 
-        print("{} : via the {} line".format(i, station_dict[current_line][0]))
+            chosen_line = ""
 
-        # Add to the line change counter if line change detected
-        if station_dict[current_line][0] != station_dict[i][0]:
-            line_change_counter += 1
+            # Determine which line the user will take to the new station
+            for line in station_dict[i]:
+                if line in station_dict[prev_station]:
+                    chosen_line = line
 
-        # Update the line used after every iteration
-        current_line = i
+            print("{} : via the {} line".format(i, chosen_line))
 
-    # Testing stuff
-    print()
-    print(line_change_counter)
-    print()
-    print("Total route time will be {} minutes".format(route[0]))
+            # Add to the line change counter if line change detected
+            if chosen_line != prev_line:
+                line_change_counter += 1
 
+            # Update the previous station and line used
+            prev_station = i
+            prev_line = chosen_line
 
+        # Add 30 seconds passenger boarding/disembarking time for each station excluding start and end stations
+        station_halt_time = ((len(route[1]) - 2) * 30) / 60
+
+        # Add a 5 minute delay each time the user has to switch to another line
+        line_change_delay = line_change_counter * 5
+
+        # Calculate the total time for the whole journey including delays
+        total_time = int(route[0] + station_halt_time + line_change_delay)
+
+        print("\nTotal route time will be {} minutes including delays".format(total_time))
+
+    except(NodeNotFound, NetworkXNoPath):
+        print("Invalid Nodes Entered")
+    
+    
 get_route()
 
 
