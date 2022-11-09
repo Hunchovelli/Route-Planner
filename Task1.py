@@ -2,7 +2,7 @@
 
 import openpyxl
 import networkx as nx
-from networkx import single_source_dijkstra
+from networkx import single_source_dijkstra, NodeNotFound, NetworkXNoPath
 
 wrkbk = openpyxl.load_workbook("Stations.xlsx")  # Creating a link to the excel file with the London Underground Data
 ws = wrkbk['Sheet1']
