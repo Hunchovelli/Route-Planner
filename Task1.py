@@ -65,10 +65,36 @@ G = nx.MultiGraph()
 G.add_nodes_from(vertices)
 G.add_weighted_edges_from(edges)
 
-# Test Code
-# print(single_source_dijkstra(G, source="Acton Town", target="Green Park", weight='weight'))
 
+################ Processing Data for Task 3 ###############################
 
+# Processing data from the Weekly Crowd Traffic spreadsheet
+wrkbk2 = openpyxl.load_workbook("WeeklyCrowdTraffic_Updated.xlsx")  # Link to underground crowd traffic data
+ws2 = wrkbk2['Sheet1']
+
+rows3 = ws2.iter_rows(min_row=3, max_row=269, min_col=1, max_col=7, values_only=True)
+
+# This dictionary will hold each station as keys and each key will hold its own dictionary of crowd density
+# Example: station_density["Green Park"] ------>  {'Weekday': 63355, 'Saturday': 38963, 'Sunday': 27357}
+# The numbers in the dictionary are the average number of people at the station on that given day
+station_density = {}
+
+for row in rows3:
+    station = row[0].rstrip()
+    if station in vertices:
+
+        weekday_avg = (row[1] + row[4])/2  # Calculate the average number of people visiting the station on weekdays
+        saturday_avg = (row[2] + row[5])/2  # Calculate the average number of people visiting the station on saturdays
+        sunday_avg = (row[3] + row[6])/2  # Calculate the average number of people visiting the station on sundays
+
+        # Add the averages to the dictionary
+        station_density[station] = {}
+        station_density[station]["Weekday"] = int(weekday_avg)
+        station_density[station]["Saturday"] = int(saturday_avg)
+        station_density[station]["Sunday"] = int(sunday_avg)
+#################################################################################################################
+
+# Task 1a
 # Main program which will be take the input from user and display route
 def get_route():
 
