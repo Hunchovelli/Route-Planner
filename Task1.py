@@ -3,6 +3,10 @@
 import openpyxl
 import networkx as nx
 from networkx import single_source_dijkstra, NodeNotFound, NetworkXNoPath
+#imports module which gets the current day 
+from datetime import datetime
+#import module which draws line graph for the station densities
+import matplotlib.pyplot as plt
 
 wrkbk = openpyxl.load_workbook("Stations_Updated.xlsx")  # Creating a link to the excel file with the London Underground Data
 ws = wrkbk['Sheet1']
@@ -110,7 +114,7 @@ def get_route():
     # Handle exceptions occurred from bad input
     try:
         route = single_source_dijkstra(G, source=departure, target=destination, weight='weight')
-
+        print (route)
         # Print route, station by station along with the line they will use to get there
         for i in route[1]:
 
@@ -149,10 +153,46 @@ def get_route():
 
         print("\nTotal route time will be {} minutes including delays".format(total_time))
 
+        #create the object which contains the current local date and numbers Monday to Sunday from 0 - 6 respectively. Store it in day variable.
+        day = datetime.today().weekday()
+        #list which will hold the x values for each station
+        xaxis = []
+        #list which will hold the y values for each station on the station density
+        yaxis = []
+        
+        #for loop which iterates throught the list that shows the route
+        for station in route[1]:
+            #for each station in the route list we add it to the x axis list
+            xaxis.append(station)
+            #if it's a weekday, the day variable will be between 0 - 5
+            if day < 5:
+                #append the corresponding value from the dictionary which contains the station density if it's a Weekday
+                yaxis.append(station_density[station]['Weekday'])
+            elif day == 5:
+                #append the corresponding value from the dictionary which contains the station density if it's a Saturday
+                yaxis.append(station_density[station]['Saturday'])
+            else:
+                #append the corresponding value from the dictionary which contains the station density if it's a Sunday
+                yaxis.append(station_density[station]['Sunday'])
+                
+        #plots the axis of the line graph
+        plt.plot(xaxis, yaxis)
+        #titles the line graph
+        plt.title("Crowd/Traffic for Route at each Stations")
+        #labels the x axis
+        plt.xlabel("Station")
+        #labels the y axis
+        plt.ylabel("Station Density")
+        #displays the produced graph
+        plt.show()
+        
     except(NodeNotFound, NetworkXNoPath):
         print("Invalid Nodes Entered")
     
     
 get_route()
+
+
+
 
 
