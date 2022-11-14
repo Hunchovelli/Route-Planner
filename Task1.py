@@ -110,6 +110,7 @@ def get_route():
     departure = input()
     print("Enter the destination stations: ")
     destination = input()
+    print("\n Your generated route is:\n")
     
     # Handle exceptions occurred from bad input
     try:
@@ -122,7 +123,7 @@ def get_route():
             if route[1].index(i) == 0:
                 prev_station = i  # Holds the station travelled from
                 prev_line = station_dict[i][0]  # Holds the line used to travel to the previous station
-                print(i)
+                print("Take the {} line from {}\n".format(prev_line, prev_station))
                 continue
 
             chosen_line = ""
@@ -132,8 +133,13 @@ def get_route():
                 if line in station_dict[prev_station]:
                     chosen_line = line
 
-            print("{} : via the {} line".format(i, chosen_line))
-
+            if chosen_line != prev_line:
+                print("\nSwitch To ----> {} line\n".format(chosen_line))
+                print("{} : via the {} line".format(i, chosen_line))
+            else:
+                print("{} : via the {} line".format(i, chosen_line))
+                
+                
             # Add to the line change counter if line change detected
             if chosen_line != prev_line:
                 line_change_counter += 1
@@ -151,7 +157,7 @@ def get_route():
         # Calculate the total time for the whole journey including delays
         total_time = int(route[0] + station_halt_time + line_change_delay)
 
-        print("\nTotal route time will be {} minutes including delays".format(total_time))
+        print("\nTotal route time including {} line changes is {} minutes".format(line_change_counter, total_time))
 
         #create the object which contains the current local date and numbers Monday to Sunday from 0 - 6 respectively. Store it in day variable.
         day = datetime.today().weekday()
