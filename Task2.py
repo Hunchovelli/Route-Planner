@@ -2,11 +2,11 @@
 
 #importing the module which read excel files
 from openpyxl import load_workbook
+#importing the module which makes graph of all the nodes and stations
 import networkx
-import matplotlib.pyplot as plt
 
 #creates an object to the excel sheet with the london undeground data
-file = load_workbook("Stations.xlsx") #make sure to run python script in the working directory
+file = load_workbook("Stations_Updated.xlsx") #make sure to run python script in the working directory
 #stores the main sheet from the excel file in variable
 sheet = file.active
 
@@ -19,24 +19,23 @@ stations_list = []
 #iterates through the column 'B' in the excel sheet
 for station in sheet["B"]:
     #checks for duplicates by comparing the stations in the column with ones already in added to the statio_list
-    if station.value not in stations_list:
+    if station.value.rstrip() not in stations_list:
         #adds a station to the list if not already in the list
-        stations_list.append(station.value)
+        stations_list.append((station.value).rstrip())
 
 #for each station in station_list we iterate through the list
 for station in stations_list:
     #make each station into a node on the graph
     G.add_node(station)
 
-
 #for each station in station_list we iterate through the list
 for station in stations_list:
     #iterates through every cell in column 'E' in the excel sheet
     for cell in sheet["E"]:
         #if the cell content we are currently on in the iteration of the excel sheet column 'E' is equal to the station we are currently on in the iteration of the station_list
-        if cell.value == station:
+        if str(cell.value).rstrip() == station:
             #make an edge between the current cell we are on in the excel sheet in column 'E' and the adjacent cell in colum 'F'. Also, add the attributes weight/time between the stations which is in column 'G.
-            G.add_edge(cell.value, sheet['F'+str(cell.row)].value, weight = sheet['G'+str(cell.row)].value)
+            G.add_edge(cell.value.rstrip(), sheet['F'+str(cell.row)].value.rstrip(), weight = sheet['G'+str(cell.row)].value)
 
 #define function dijskta with arguements, graph = the graph of the stations, source = the starting station and destination = the target station.
 def dijsktra(graph, source, destination):
