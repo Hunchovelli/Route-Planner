@@ -7,6 +7,7 @@ from networkx import single_source_dijkstra, NodeNotFound, NetworkXNoPath
 from datetime import datetime
 #import module which draws line graph for the station densities
 import matplotlib.pyplot as plt
+import requests
 
 wrkbk = openpyxl.load_workbook("Stations_Updated.xlsx")  # Creating a link to the excel file with the London Underground Data
 ws = wrkbk['Sheet1']
@@ -97,6 +98,26 @@ for row in rows3:
         station_density[station]["Saturday"] = int(saturday_avg)
         station_density[station]["Sunday"] = int(sunday_avg)
 #################################################################################################################
+
+# FUNCTION TO GENERATE URLs TO THE TFL WEBPAGES FOR EACH STATION
+
+# Takes a list
+def generate_url(list_of_stations):
+
+    url = "https://tfl.gov.uk/disambiguation?Input=Hounslow+West&DataSetsJson=%5B%5B%22stopPoints%22%2C%22%2F%7B%7Bmode%7D%7D%2Fstop%2F%7B%7BnaptanId%7D%7D%2F%7B%7BstopName%7D%7D%2F%22%5D%2C%5B%22routes%22%2C%22%2F%7B%7Bmode%7D%7D%2Froute%2F%7B%7BlineIds%7D%7D%2F%22%5D%5D&Modes=tube&PlaceHolderText=Tube+station+or+line+%28e.g.+Victoria%29"
+
+    links = []
+
+    for i in list_of_stations:
+        station_string = i + " Underground Station"
+        response = requests.post(url, data={"input": station_string})
+        links.append(response.url)
+    
+    # List of URLs for each station
+    return links 
+
+
+###############################################################################################################
 
 # Task 1a
 # Main program which will be take the input from user and display route
