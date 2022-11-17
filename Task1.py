@@ -8,6 +8,14 @@ from datetime import datetime
 #import module which draws line graph for the station densities
 import matplotlib.pyplot as plt
 import requests
+import re
+from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from datetime import datetime, timezone
+from selenium.webdriver.chrome.options import Options
 
 wrkbk = openpyxl.load_workbook("Stations_Updated.xlsx")  # Creating a link to the excel file with the London Underground Data
 ws = wrkbk['Sheet1']
@@ -180,39 +188,71 @@ def get_route():
 
         print("\nTotal route time including {} line changes is {} minutes".format(line_change_counter, total_time))
 
-        #create the object which contains the current local date and numbers Monday to Sunday from 0 - 6 respectively. Store it in day variable.
-        day = datetime.today().weekday()
-        #list which will hold the x values for each station
+        #################################################################################################################
+
+        #DRAWS LIVE GRAPH OF STATION STATUS
+
+        utc_dt = datetime.now(timezone.utc)
+        dt = utc_dt.astimezone().time()
+
+        #list which will hold the x values for each station for the graph
         xaxis = []
-        #list which will hold the y values for each station on the station density
-        yaxis = []
-        
+
         #for loop which iterates throught the list that shows the route
         for station in route[1]:
             #for each station in the route list we add it to the x axis list
             xaxis.append(station)
-            #if it's a weekday, the day variable will be between 0 - 5
-            if day < 5:
-                #append the corresponding value from the dictionary which contains the station density if it's a Weekday
-                yaxis.append(station_density[station]['Weekday'])
-            elif day == 5:
-                #append the corresponding value from the dictionary which contains the station density if it's a Saturday
-                yaxis.append(station_density[station]['Saturday'])
-            else:
-                #append the corresponding value from the dictionary which contains the station density if it's a Sunday
-                yaxis.append(station_density[station]['Sunday'])
+
+        #list which will hold the y values for each station on the station density for the graph
+        yaxis = []
+
+        for link in generate_url(route[1]):
+
+            url = link
+            option = webdriver.ChromeOptions()
+            option.add_argument('headless')
+            option.add_experimental_option('excludeSwitches', ['enable-logging'])
+            driver = webdriver.Chrome(options=option)
+            driver.get(url)
+
+            global timevalue_dict 
+            timevalue_dict = {}
+
+            def status_dict(time_range, value):
+                for time in time_range:
+                    timevalue_dict[time] = value
+                return timevalue_dict
+
+            try:
+                tags = WebDriverWait(driver, 100).until(EC.presence_of_all_elements_located((By.TAG_NAME, 'g')))
+                values_List = []
+                for tag in tags:
+                    value = tag.get_attribute('aria-describedby')
+                    if value != None:
+                        values_List.append(value)
                 
+                for value in values_List: 
+                    split_string = re.split('(\d+)', value)
+                    status_dict(range(int(split_string[1]+split_string[3]),(int(split_string[5]+split_string[7]))), int(split_string[9]))
+            finally:
+                driver.quit()
+
+            live_time_split = str(dt).split(':')
+            merged_time = int(live_time_split[0]+live_time_split[1])
+
+            yaxis.append(timevalue_dict[merged_time])
+
         #plots the axis of the line graph
         plt.plot(xaxis, yaxis)
         #titles the line graph
-        plt.title("Crowd/Traffic for Route at each Stations")
+        plt.title("Live Crowd/Traffic for Route at each Stations")
         #labels the x axis
         plt.xlabel("Station")
         #labels the y axis
-        plt.ylabel("Station Density")
+        plt.ylabel("Value")
         #displays the produced graph
         plt.show()
-        
+    #################################################################################################################
     except(NodeNotFound, NetworkXNoPath):
         print("Invalid Nodes Entered")
     
