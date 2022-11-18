@@ -206,40 +206,68 @@ def get_route():
         #list which will hold the y values for each station on the station density for the graph
         yaxis = []
 
+        #loops through the list of links for the status of the station for the route
         for link in generate_url(route[1]):
-
+            
+            #variable that holds the link for the status of station from the tfl website
             url = link
+            #object that is used to set the capability and customization and configuration of the ChromeDriver session. 
             option = webdriver.ChromeOptions()
+            #headless browser can access any website but unlike normal browsers nothing will appear on the screen. works in the backend and is invisble to user.
             option.add_argument('headless')
+            #disable chrome logging output in the terminal
             option.add_experimental_option('excludeSwitches', ['enable-logging'])
+            #object for the chrome browser to open
             driver = webdriver.Chrome(options=option)
+            #opens the browser with the url page open
             driver.get(url)
 
-            global timevalue_dict 
+            #initialize global dictionary that can be accessed outside the function
+            global timevalue_dict
+            #dictionary that stores the time with the corresponding value of the status
             timevalue_dict = {}
 
+            #function that creates a dictionary with all the stored times and their corresponding values for the status of the station   
             def status_dict(time_range, value):
+                #for loop that loops through the 
                 for time in time_range:
+                    #
                     timevalue_dict[time] = value
+                #returns the dictionary
                 return timevalue_dict
 
+            #try block that
             try:
+                #looks for the all the 'g' element in the html and stores them all in the tag. Waits a 100sec max for finding the element.
                 tags = WebDriverWait(driver, 100).until(EC.presence_of_all_elements_located((By.TAG_NAME, 'g')))
+                #creates empty list
                 values_List = []
+
+                #loops through each tag made
                 for tag in tags:
+                    #gets the value in aria-describedby and stores ti in value variable
                     value = tag.get_attribute('aria-describedby')
+                    #checks to see if attribute is present in the g element.
                     if value != None:
+                        #adds the value from the attribute to the list
                         values_List.append(value)
                 
+                #loops through the values in the value_list
                 for value in values_List: 
+                    #splits each value by in the string by numerical digits and creates a list of the split characters in the string
                     split_string = re.split('(\d+)', value)
+                    #pass the split string elements through indexing the split_string list into the function declared earlier that creates a dictionary of the times and the corresponding values.
                     status_dict(range(int(split_string[1]+split_string[3]),(int(split_string[5]+split_string[7]))), int(split_string[9]))
+            #after the try block has been executed
             finally:
+                #quit the web scraping 
                 driver.quit()
 
+            #split the current time by : and puts it into a list
             live_time_split = str(dt).split(':')
+            #merging the hour and minute of the time into one number
             merged_time = int(live_time_split[0]+live_time_split[1])
-
+            #use the merged time to use as a key for the timevalue dictionary which will add the corresponding value to the y axis list.
             yaxis.append(timevalue_dict[merged_time])
 
         #plots the axis of the line graph
