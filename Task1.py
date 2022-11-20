@@ -277,7 +277,7 @@ def get_route():
         #labels the x axis
         plt.xlabel("Station")
         #labels the y axis
-        plt.ylabel("Value")
+        plt.ylabel("Current Crowd Traffic")
         #displays the produced graph
         plt.show()
     #################################################################################################################
