@@ -115,7 +115,6 @@ def get_route():
     # Handle exceptions occurred from bad input
     try:
         route = single_source_dijkstra(G, source=departure, target=destination, weight='weight')
-        print (route)
         # Print route, station by station along with the line they will use to get there
         for i in route[1]:
 
@@ -253,7 +252,7 @@ def get_route():
         plt.show()
     #################################################################################################################
     except(NodeNotFound, NetworkXNoPath):
-        print("Invalid Nodes Entered")
+        print("Invalid Stations Entered")
     
     
 get_route()
