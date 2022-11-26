@@ -4,6 +4,7 @@
 from openpyxl import load_workbook
 #importing the module which makes graph of all the nodes and stations
 import networkx
+import time
 
 #creates an object to the excel sheet with the london undeground data
 file = load_workbook("Stations_Updated.xlsx") #make sure to run python script in the working directory
@@ -36,6 +37,10 @@ for station in stations_list:
         if str(cell.value).rstrip() == station:
             #make an edge between the current cell we are on in the excel sheet in column 'E' and the adjacent cell in colum 'F'. Also, add the attributes weight/time between the stations which is in column 'G.
             G.add_edge(cell.value.rstrip(), sheet['F'+str(cell.row)].value.rstrip(), weight = sheet['G'+str(cell.row)].value)
+
+
+
+
 
 #define function dijskta with arguements, graph = the graph of the stations, source = the starting station and destination = the target station.
 def dijsktra(graph, source, destination):
@@ -83,11 +88,18 @@ def dijsktra(graph, source, destination):
     except networkx.exception.NetworkXNoPath:
         #instead of the default error message python produces when networkx.exception.NetworkXNoPath is raised, custom print statement is outputted instead.
         print ("No route is feasible as all other routes are closed or impossible.")
+    except IndexError:
+        print ('No route is feasible as already present at station.')
+    except networkx.exception.NodeNotFound:
+        print ('Station inputted does not exist')
+
 
 #takes the input of starting station from the user
 src_input = input("Where would you like to start your journey?: ")
 #takes the input of destination station from the user
 dest_input = input("Where would you like to go to?: ")
-
+t1 = time.time()
 #executes the function defined above using the graph we created, the starting input from the user and the destination input from the user as the arguements.
 print (dijsktra(G, src_input, dest_input))
+
+
