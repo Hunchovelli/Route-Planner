@@ -78,22 +78,22 @@ G.add_weighted_edges_from(edges)
 
 #################################################################################################################
 
-# FUNCTION TO GENERATE URLs TO THE TFL WEBPAGES FOR EACH STATION
+# # FUNCTION TO GENERATE URLs TO THE TFL WEBPAGES FOR EACH STATION
 
-# Takes a list
-def generate_url(list_of_stations):
+# # Takes a list
+# def generate_url(list_of_stations):
 
-    url = "https://tfl.gov.uk/disambiguation?Input=Hounslow+West&DataSetsJson=%5B%5B%22stopPoints%22%2C%22%2F%7B%7Bmode%7D%7D%2Fstop%2F%7B%7BnaptanId%7D%7D%2F%7B%7BstopName%7D%7D%2F%22%5D%2C%5B%22routes%22%2C%22%2F%7B%7Bmode%7D%7D%2Froute%2F%7B%7BlineIds%7D%7D%2F%22%5D%5D&Modes=tube&PlaceHolderText=Tube+station+or+line+%28e.g.+Victoria%29"
+#     url = "https://tfl.gov.uk/disambiguation?Input=Hounslow+West&DataSetsJson=%5B%5B%22stopPoints%22%2C%22%2F%7B%7Bmode%7D%7D%2Fstop%2F%7B%7BnaptanId%7D%7D%2F%7B%7BstopName%7D%7D%2F%22%5D%2C%5B%22routes%22%2C%22%2F%7B%7Bmode%7D%7D%2Froute%2F%7B%7BlineIds%7D%7D%2F%22%5D%5D&Modes=tube&PlaceHolderText=Tube+station+or+line+%28e.g.+Victoria%29"
 
-    links = []
+#     links = []
 
-    for i in list_of_stations:
-        station_string = i + " Underground Station"
-        response = requests.post(url, data={"input": station_string})
-        links.append(response.url)
+#     for i in list_of_stations:
+#         station_string = i + " Underground Station"
+#         response = requests.post(url, data={"input": station_string})
+#         links.append(response.url)
     
-    # List of URLs for each station
-    return links 
+#     # List of URLs for each station
+#     return links 
 
 
 ###############################################################################################################
@@ -161,6 +161,21 @@ def get_route():
         #################################################################################################################
 
         #DRAWS LIVE GRAPH OF STATION STATUS
+        
+        # Function to generate URL for the webpages of each station involved in the route generated
+        # Takes a list
+        def generate_url(list_of_stations):
+            url = "https://tfl.gov.uk/disambiguation?Input=Hounslow+West&DataSetsJson=%5B%5B%22stopPoints%22%2C%22%2F%7B%7Bmode%7D%7D%2Fstop%2F%7B%7BnaptanId%7D%7D%2F%7B%7BstopName%7D%7D%2F%22%5D%2C%5B%22routes%22%2C%22%2F%7B%7Bmode%7D%7D%2Froute%2F%7B%7BlineIds%7D%7D%2F%22%5D%5D&Modes=tube&PlaceHolderText=Tube+station+or+line+%28e.g.+Victoria%29"
+
+            links = []
+
+            for i in list_of_stations:
+                station_string = i + " Underground Station"
+                response = requests.post(url, data={"input": station_string})
+                links.append(response.url)
+
+            # List of URLs for each station
+            return links
 
         utc_dt = datetime.now(timezone.utc)
         dt = utc_dt.astimezone().time()
