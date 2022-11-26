@@ -38,12 +38,9 @@ for row in rows1:
     station = row[1].rstrip()  # Using rstrip() to get rid of unnecessary whitespace at end of string if present
     if station in station_dict.keys():
         station_dict[station].append(row[0])
-        station_dict[station].sort()
     else:
         station_dict[station] = [row[0]]
-        station_dict[station].sort()
     
-
 # Get list of vertices by obtaining all the keys from the dictionary
 vertices = station_dict.keys()
 
@@ -79,50 +76,24 @@ G.add_nodes_from(vertices)
 G.add_weighted_edges_from(edges)
 
 
-################ Processing Data for Task 3 ###############################
-
-# Processing data from the Weekly Crowd Traffic spreadsheet
-wrkbk2 = openpyxl.load_workbook("WeeklyCrowdTraffic_Updated.xlsx")  # Link to underground crowd traffic data
-ws2 = wrkbk2['Sheet1']
-
-rows3 = ws2.iter_rows(min_row=3, max_row=269, min_col=1, max_col=7, values_only=True)
-
-# This dictionary will hold each station as keys and each key will hold its own dictionary of crowd density
-# Example: station_density["Green Park"] ------>  {'Weekday': 63355, 'Saturday': 38963, 'Sunday': 27357}
-# The numbers in the dictionary are the average number of people at the station on that given day
-station_density = {}
-
-for row in rows3:
-    station = row[0].rstrip()
-    if station in vertices:
-
-        weekday_avg = (row[1] + row[4])/2  # Calculate the average number of people visiting the station on weekdays
-        saturday_avg = (row[2] + row[5])/2  # Calculate the average number of people visiting the station on saturdays
-        sunday_avg = (row[3] + row[6])/2  # Calculate the average number of people visiting the station on sundays
-
-        # Add the averages to the dictionary
-        station_density[station] = {}
-        station_density[station]["Weekday"] = int(weekday_avg)
-        station_density[station]["Saturday"] = int(saturday_avg)
-        station_density[station]["Sunday"] = int(sunday_avg)
 #################################################################################################################
 
-# FUNCTION TO GENERATE URLs TO THE TFL WEBPAGES FOR EACH STATION
+# # FUNCTION TO GENERATE URLs TO THE TFL WEBPAGES FOR EACH STATION
 
-# Takes a list
-def generate_url(list_of_stations):
+# # Takes a list
+# def generate_url(list_of_stations):
 
-    url = "https://tfl.gov.uk/disambiguation?Input=Hounslow+West&DataSetsJson=%5B%5B%22stopPoints%22%2C%22%2F%7B%7Bmode%7D%7D%2Fstop%2F%7B%7BnaptanId%7D%7D%2F%7B%7BstopName%7D%7D%2F%22%5D%2C%5B%22routes%22%2C%22%2F%7B%7Bmode%7D%7D%2Froute%2F%7B%7BlineIds%7D%7D%2F%22%5D%5D&Modes=tube&PlaceHolderText=Tube+station+or+line+%28e.g.+Victoria%29"
+#     url = "https://tfl.gov.uk/disambiguation?Input=Hounslow+West&DataSetsJson=%5B%5B%22stopPoints%22%2C%22%2F%7B%7Bmode%7D%7D%2Fstop%2F%7B%7BnaptanId%7D%7D%2F%7B%7BstopName%7D%7D%2F%22%5D%2C%5B%22routes%22%2C%22%2F%7B%7Bmode%7D%7D%2Froute%2F%7B%7BlineIds%7D%7D%2F%22%5D%5D&Modes=tube&PlaceHolderText=Tube+station+or+line+%28e.g.+Victoria%29"
 
-    links = []
+#     links = []
 
-    for i in list_of_stations:
-        station_string = i + " Underground Station"
-        response = requests.post(url, data={"input": station_string})
-        links.append(response.url)
+#     for i in list_of_stations:
+#         station_string = i + " Underground Station"
+#         response = requests.post(url, data={"input": station_string})
+#         links.append(response.url)
     
-    # List of URLs for each station
-    return links 
+#     # List of URLs for each station
+#     return links 
 
 
 ###############################################################################################################
@@ -144,7 +115,6 @@ def get_route():
     # Handle exceptions occurred from bad input
     try:
         route = single_source_dijkstra(G, source=departure, target=destination, weight='weight')
-        print (route)
         # Print route, station by station along with the line they will use to get there
         for i in route[1]:
 
@@ -185,12 +155,34 @@ def get_route():
 
         # Calculate the total time for the whole journey including delays
         total_time = int(route[0] + station_halt_time + line_change_delay)
-
-        print("\nTotal route time including {} line changes is {} minutes".format(line_change_counter, total_time))
+        
+        if total_time <= 60:
+            print("\nTotal route time including {} line changes is {} minutes".format(line_change_counter, total_time))
+        else:
+            total_time = round(total_time/60, 2)
+            split_val = str(total_time).split(".")
+            print("\nTotal route time including {} line changes is {} hours and {} minutes".format(line_change_counter,
+                                                                                                   split_val[0],
+                                                                                                   split_val[1]))
 
         #################################################################################################################
 
         #DRAWS LIVE GRAPH OF STATION STATUS
+        
+        # Function to generate URL for the webpages of each station involved in the route generated
+        # Takes a list
+        def generate_url(list_of_stations):
+            url = "https://tfl.gov.uk/disambiguation?Input=Hounslow+West&DataSetsJson=%5B%5B%22stopPoints%22%2C%22%2F%7B%7Bmode%7D%7D%2Fstop%2F%7B%7BnaptanId%7D%7D%2F%7B%7BstopName%7D%7D%2F%22%5D%2C%5B%22routes%22%2C%22%2F%7B%7Bmode%7D%7D%2Froute%2F%7B%7BlineIds%7D%7D%2F%22%5D%5D&Modes=tube&PlaceHolderText=Tube+station+or+line+%28e.g.+Victoria%29"
+
+            links = []
+
+            for i in list_of_stations:
+                station_string = i + " Underground Station"
+                response = requests.post(url, data={"input": station_string})
+                links.append(response.url)
+
+            # List of URLs for each station
+            return links
 
         utc_dt = datetime.now(timezone.utc)
         dt = utc_dt.astimezone().time()
@@ -282,7 +274,7 @@ def get_route():
         plt.show()
     #################################################################################################################
     except(NodeNotFound, NetworkXNoPath):
-        print("Invalid Nodes Entered")
+        print("Invalid Stations Entered")
     
     
 get_route()
