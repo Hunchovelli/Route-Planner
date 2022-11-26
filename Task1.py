@@ -155,8 +155,16 @@ def get_route():
 
         # Calculate the total time for the whole journey including delays
         total_time = int(route[0] + station_halt_time + line_change_delay)
-
-        print("\nTotal route time including {} line changes is {} minutes".format(line_change_counter, total_time))
+        
+        if total_time <= 60:
+            print("\nTotal route time including {} line changes is {} minutes".format(line_change_counter, total_time))
+        else:
+            print(total_time)
+            total_time = round(total_time/60, 2)
+            split_val = str(total_time).split(".")
+            print("\nTotal route time including {} line changes is {} hours and {} minutes".format(line_change_counter,
+                                                                                                   split_val[0],
+                                                                                                   split_val[1]))
 
         #################################################################################################################
 
