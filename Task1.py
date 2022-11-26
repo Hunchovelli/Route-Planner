@@ -159,7 +159,6 @@ def get_route():
         if total_time <= 60:
             print("\nTotal route time including {} line changes is {} minutes".format(line_change_counter, total_time))
         else:
-            print(total_time)
             total_time = round(total_time/60, 2)
             split_val = str(total_time).split(".")
             print("\nTotal route time including {} line changes is {} hours and {} minutes".format(line_change_counter,
