@@ -4,7 +4,7 @@
 from openpyxl import load_workbook
 #importing the module which makes graph of all the nodes and stations
 import networkx
-import time
+
 
 #creates an object to the excel sheet with the london undeground data
 file = load_workbook("Stations_Updated.xlsx") #make sure to run python script in the working directory
@@ -98,7 +98,6 @@ def dijsktra(graph, source, destination):
 src_input = input("Where would you like to start your journey?: ")
 #takes the input of destination station from the user
 dest_input = input("Where would you like to go to?: ")
-t1 = time.time()
 #executes the function defined above using the graph we created, the starting input from the user and the destination input from the user as the arguements.
 print (dijsktra(G, src_input, dest_input))
 
