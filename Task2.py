@@ -7,7 +7,7 @@ import networkx
 
 
 #creates an object to the excel sheet with the london undeground data
-file = load_workbook("Stations_Updated.xlsx") #make sure to run python script in the working directory
+file = load_workbook("Stations for Task 2.xlsx") #make sure to run python script in the working directory
 #stores the main sheet from the excel file in variable
 sheet = file.active
 
@@ -88,11 +88,12 @@ def dijsktra(graph, source, destination):
     except networkx.exception.NetworkXNoPath:
         #instead of the default error message python produces when networkx.exception.NetworkXNoPath is raised, custom print statement is outputted instead.
         print ("No route is feasible as all other routes are closed or impossible.")
+    '''
     except IndexError:
         print ('No route is feasible as already present at station.')
     except networkx.exception.NodeNotFound:
         print ('Station inputted does not exist')
-
+    '''
 
 #takes the input of starting station from the user
 src_input = input("Where would you like to start your journey?: ")
