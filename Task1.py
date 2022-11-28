@@ -44,59 +44,16 @@ for row in rows1:
 # Get list of vertices by obtaining all the keys from the dictionary
 vertices = station_dict.keys()
 
-# print(vertices)  # Run this for a better idea
-
 # Append all the edges from the excel file
 for row in rows2:
     start = row[0].rstrip()
     end = row[1].strip()
     edges.append((start, end, row[2]))
 
-# print(edges)   # Run this for a better idea
-
-##########################################################################################################
-# THESE 2 FOR LOOPS ARE NOT PART OF TASK 1
-# THEY CAN BE USED AS REFERENCE FOR TASK 2
-# Get all the edges linked to one station
-# for i in edges:
-#     if i[0] == "South Kensington" or i[1] == "South Kensington" or i[2] == "South Kensington":
-#         print(i)
-
-# # Remove an edge linked to the station
-# for j in edges:
-#     if j == ('Gloucester Road', 'South Kensington', 3):
-#         edges.remove(j)
-###########################################################################################################
-
-# CONTINUATION OF TASK 1
-
 # Create the graph by passing the list of nodes and edges
 G = nx.MultiGraph()
 G.add_nodes_from(vertices)
 G.add_weighted_edges_from(edges)
-
-
-#################################################################################################################
-
-# # FUNCTION TO GENERATE URLs TO THE TFL WEBPAGES FOR EACH STATION
-
-# # Takes a list
-# def generate_url(list_of_stations):
-
-#     url = "https://tfl.gov.uk/disambiguation?Input=Hounslow+West&DataSetsJson=%5B%5B%22stopPoints%22%2C%22%2F%7B%7Bmode%7D%7D%2Fstop%2F%7B%7BnaptanId%7D%7D%2F%7B%7BstopName%7D%7D%2F%22%5D%2C%5B%22routes%22%2C%22%2F%7B%7Bmode%7D%7D%2Froute%2F%7B%7BlineIds%7D%7D%2F%22%5D%5D&Modes=tube&PlaceHolderText=Tube+station+or+line+%28e.g.+Victoria%29"
-
-#     links = []
-
-#     for i in list_of_stations:
-#         station_string = i + " Underground Station"
-#         response = requests.post(url, data={"input": station_string})
-#         links.append(response.url)
-    
-#     # List of URLs for each station
-#     return links 
-
-
-###############################################################################################################
 
 # Task 1a
 # Main program which will be take the input from user and display route
@@ -167,7 +124,7 @@ def get_route():
 
         #################################################################################################################
 
-        #DRAWS LIVE GRAPH OF STATION STATUS
+        # DRAWS LIVE GRAPH OF STATION STATUS
         
         # Function to generate URL for the webpages of each station involved in the route generated
         # Takes a list
